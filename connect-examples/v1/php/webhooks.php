@@ -73,7 +73,7 @@ function webhookCallback() {
       exportCSV('webhooks_' . date('Ymd') . '.csv', array(
      	'paymentId' => $paymentId, 
         'locationId' => $locationId,	
-	'payment_url' => $responseJson->payment_url,
+	'payment_url' => json_encode($responseJson->payment_url),
 	'callbackBody' => $callbackBody
       )); 
 
