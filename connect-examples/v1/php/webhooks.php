@@ -67,11 +67,13 @@ function webhookCallback() {
       # Send a request to the Retrieve Payment endpoint to get the updated payment's full details
       $response = Unirest\Request::get($connectHost . '/v1/' . $locationId . '/payments/' . $paymentId, $requestHeaders);
 
+      $responseJson = json_decode($response);
+
       # write paymentId, locationId to csv
       exportCSV('webhooks_' . date('Ymd') . '.csv', array(
      	'paymentId' => $paymentId, 
         'locationId' => $locationId,	
-	'response' => json_encode($response),
+	'payment_url' => $responseJson->payment_url,
 	'callbackBody' => $callbackBody
       )); 
 
