@@ -67,6 +67,14 @@ function webhookCallback() {
       # Send a request to the Retrieve Payment endpoint to get the updated payment's full details
       $response = Unirest\Request::get($connectHost . '/v1/' . $locationId . '/payments/' . $paymentId, $requestHeaders);
 
+      # write paymentId, locationId to csv
+      exportCSV('webhooks_' . date('Ymd') . '.csv', array(
+     	'paymentId' => $paymentId, 
+        'locationId' => $locationId,	
+	'response' => json_encode($response),
+	'callbackBody' => $callbackBody
+      )); 
+
       # Perform an action based on the returned payment (in this case, simply log it)
       error_log(json_encode($response->body, JSON_PRETTY_PRINT));
     }
@@ -74,6 +82,16 @@ function webhookCallback() {
     error_log("Received a non-POST request");
   }
 }
+
+
+function exportCSV($fileName, $data) {
+  if (!is_array($data)) return; 
+
+  $fp = fopen($fileName, 'w+');
+  fputcsv($fp, $data); 
+  fclose($fp);
+}
+
 
 # Validates HMAC-SHA1 signatures included in webhook notifications to ensure notifications came from Square
 function isValidCallback($callbackBody, $callbackSignature) {
@@ -93,4 +111,3 @@ function isValidCallback($callbackBody, $callbackSignature) {
 # Process the callback
 webhookCallback();
 
-?>
