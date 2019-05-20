@@ -74,7 +74,7 @@ function webhookCallback() {
      	'paymentId' => $paymentId, 
         'locationId' => $locationId,	
 	'payment_url' => $responseJson->payment_url,
-	'itemizations' => json_encode($responseJson->itemizations,
+	'itemizations' => json_encode($responseJson->itemizations),
 	// ...
 	'callbackBody' => $callbackBody
       )); 
