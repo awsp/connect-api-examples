@@ -73,10 +73,9 @@ function webhookCallback() {
       # Send a request to the Retrieve Payment endpoint to get the updated payment's full details
       # ------
       # STEP 2: Callback returns paymentId and locationId
-      # Submit another Square API to retrieve the payment information
+      # Submit another Square API call to retrieve the payment information
       $response = Unirest\Request::get($connectHost . '/v1/' . $locationId . '/payments/' . $paymentId, $requestHeaders);
 
-      $responseJson = json_decode($response);
 
       # write paymentId, locationId to csv
       # ------
@@ -90,11 +89,13 @@ function webhookCallback() {
       #   - payment_url: String
       #   - itemizations: V1PaymentItemization[]
       # ------
+      #
+      # Export CSV to a file on a daily basis
       exportCSV('webhooks_' . date('Ymd') . '.csv', array(
      	'paymentId' => $paymentId, 
         'locationId' => $locationId,	
-	'payment_url' => $responseJson->payment_url,
-	'itemizations' => json_encode($responseJson->itemizations),
+	'payment_url' => $response->body->payment_url,
+	'itemizations' => json_encode($response->body->itemizations),
 	// ...
 	'callbackBody' => $callbackBody
       )); 
