@@ -56,6 +56,12 @@ function webhookCallback() {
     $callbackBodyJson = json_decode($callbackBody);
 
     # If the notification indicates a PAYMENT_UPDATED event...
+    # --------
+    # STEP 1: Receive notification from subscription; notification type: PAYMENT_UPDATED
+    #
+    # Other available notification types are: INVENTORY_UPDATED, TIMECARD_UPDATED
+    # See: https://docs.connect.squareup.com/api/connect/v2#availablewebhookevents
+    # -------
     if (property_exists($callbackBodyJson, 'event_type') and $callbackBodyJson->event_type == 'PAYMENT_UPDATED') {
 
       # Get the ID of the updated payment
@@ -65,11 +71,25 @@ function webhookCallback() {
       $locationId = $callbackBodyJson->location_id;
 
       # Send a request to the Retrieve Payment endpoint to get the updated payment's full details
+      # ------
+      # STEP 2: Callback returns paymentId and locationId
+      # Submit another Square API to retrieve the payment information
       $response = Unirest\Request::get($connectHost . '/v1/' . $locationId . '/payments/' . $paymentId, $requestHeaders);
 
       $responseJson = json_decode($response);
 
       # write paymentId, locationId to csv
+      # ------
+      # STEP 3: Describe how you want to do with the retrieved data because you already know the payment is updated at this point.
+      # Things could be saving to a database or outputting to CSV ...
+      #
+      # Please refer to: https://docs.connect.squareup.com/api/connect/v2#endpoint-v1transactions-retrievepayment
+      #
+      # Under the Response fields, you should be able to find all the necessary fields for the payment. 
+      # For instance: 
+      #   - payment_url: String
+      #   - itemizations: V1PaymentItemization[]
+      # ------
       exportCSV('webhooks_' . date('Ymd') . '.csv', array(
      	'paymentId' => $paymentId, 
         'locationId' => $locationId,	
